@@ -7,15 +7,12 @@ output:
     keep_md: true
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(tidyverse)
-library(magrittr)
-```
+
 
 ## Loading and preprocessing the data
 
-```{r cars}
+
+```r
 steps <- 
   read_csv("activity.zip", col_types = cols(
     steps = col_integer(),
@@ -26,7 +23,8 @@ steps <-
 
 ## What is mean total number of steps taken per day?
 
-```{r total}
+
+```r
 daily <- steps %>% 
   count(date, wt = steps) %>% 
   rename(steps_per_day = n) 
@@ -34,15 +32,29 @@ daily <- steps %>%
 summary(daily)
 ```
 
-```{r mean}
+```
+##       date            steps_per_day  
+##  Min.   :2012-10-01   Min.   :    0  
+##  1st Qu.:2012-10-16   1st Qu.: 6778  
+##  Median :2012-10-31   Median :10395  
+##  Mean   :2012-10-31   Mean   : 9354  
+##  3rd Qu.:2012-11-15   3rd Qu.:12811  
+##  Max.   :2012-11-30   Max.   :21194
+```
+
+
+```r
 with(daily, hist(steps_per_day, breaks = 10))
 ```
+
+![](PA1_template_files/figure-html/mean-1.png)<!-- -->
 
 The mean is slightly less than the median, and the distribution is not symmetric. The peak in the first bin is evidence of missing values.
 
 ## What is the average daily activity pattern?
 
-```{r}
+
+```r
 intervals <- 
   steps %>% 
   group_by(interval) %>% 
@@ -52,19 +64,40 @@ intervals %>%
   qplot(interval, avg_steps, geom = "line", data = .)
 ```
 
-```{r}
+![](PA1_template_files/figure-html/unnamed-chunk-1-1.png)<!-- -->
+
+
+```r
 intervals %>% arrange(desc(avg_steps))
+```
+
+```
+## # A tibble: 288 x 2
+##    interval avg_steps
+##       <int>     <dbl>
+##  1      835      206.
+##  2      840      196.
+##  3      850      183.
+##  4      845      180.
+##  5      830      177.
+##  6      820      171.
+##  7      855      167.
+##  8      815      158.
+##  9      825      155.
+## 10      900      143.
+## # ... with 278 more rows
 ```
 
 Interval 08:35 has the most steps, on average. Walking to work?
 
 ## Imputing missing values
 
-There are `r sum(!complete.cases(steps))` missing (NA) in the steps column.
+There are 2304 missing (NA) in the steps column.
 
 Find the median per interval:
 
-```{r}
+
+```r
 interval_means <- 
   steps %>% 
   group_by(interval) %>% 
@@ -84,15 +117,29 @@ infilled_daily <-
 with(infilled_daily, hist(steps_per_day, breaks = 10))
 ```
 
-```{r}
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
+
+```r
 summary(infilled_daily)
+```
+
+```
+##       date            steps_per_day  
+##  Min.   :2012-10-01   Min.   :   41  
+##  1st Qu.:2012-10-16   1st Qu.: 9819  
+##  Median :2012-10-31   Median :10766  
+##  Mean   :2012-10-31   Mean   :10766  
+##  3rd Qu.:2012-11-15   3rd Qu.:12811  
+##  Max.   :2012-11-30   Max.   :21194
 ```
 
 The mean and median are now equal at 10766, a consequence of imputing entire days with the interval means. The distribution now appears more symmetric, more of a bell curve, without the peak at zero steps. 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-```{r}
+
+```r
 weekend <- c("Saturday", "Sunday")
  
 infilled %>% 
@@ -101,5 +148,7 @@ infilled %>%
   summarise(avg_steps = mean(steps)) %>% 
   qplot(x = interval, y = avg_steps, facets = week_part ~ ., geom = "line", data = .)
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
 
 Yes, the weekend is missing the peak around 8:30am (no commute?) and more activity after 10am (sedantary job during week?)

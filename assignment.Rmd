@@ -1,0 +1,13 @@
+---
+title: "Reproducible Research Assignment"
+author: "Dan Houghton"
+date: "01/10/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(magrittr)
+```
+
